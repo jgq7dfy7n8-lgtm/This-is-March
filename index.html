@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madness Pool 2026 — Rooting Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: #14141f;
+  --card-border: #1e1e2e;
+  --text: #e8e8ed;
+  --text-dim: #7a7a8e;
+  --accent-orange: #ff6b35;
+  --accent-gold: #ffd700;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+  --accent-blue: #3b82f6;
+  --accent-purple: #a855f7;
+  --fooman: #ff6b35;
+  --slosh: #ef4444;
+  --amanda: #3b82f6;
+  --work: #a855f7;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.grain {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+header {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid var(--card-border);
+  background: linear-gradient(180deg, #12121a 0%, var(--bg) 100%);
+}
+header h1 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+header p {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-top: 4px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.bracket-bar {
+  display: flex;
+  gap: 8px;
+  padding: 16px 28px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--card-border);
+}
+.bracket-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.bracket-chip .dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.bracket-chip .name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.bracket-chip .champ {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+.priority-label {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.tabs {
+  display: flex;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--card-border);
+}
+.tab {
+  padding: 14px 20px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab.active {
+  color: var(--accent-orange);
+  border-bottom-color: var(--accent-orange);
+}
+.tab:hover { color: var(--text); }
+.content { padding: 20px 20px 100px; }
+.day-header {
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 12px 8px;
+  color: var(--accent-gold);
+}
+.game-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.game-card:hover { border-color: #2e2e44; }
+.game-card.priority-high { border-left: 3px solid var(--accent-gold); }
+.game-card.priority-med { border-left: 3px solid var(--accent-orange); }
+.game-card.priority-low { border-left: 3px solid var(--card-border); }
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+.game-header:hover { background: rgba(255,255,255,0.02); }
+.game-time {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 600;
+  width: 70px;
+  flex-shrink: 0;
+}
+.game-matchup {
+  flex: 1;
+  font-family: 'Oswald', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.game-matchup .seed { color: var(--text-dim); font-weight: 400; font-size: 12px; }
+.game-matchup .vs { color: var(--text-dim); font-size: 12px; margin: 0 4px; }
+.game-tv {
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+.root-badge {
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.root-badge.unanimous { background: rgba(34,197,94,0.15); color: var(--accent-green); }
+.root-badge.majority { background: rgba(255,107,53,0.15); color: var(--accent-orange); }
+.root-badge.split { background: rgba(122,122,142,0.15); color: var(--text-dim); }
+.game-details {
+  display: none;
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--card-border);
+}
+.game-details.open { display: block; padding-top: 12px; }
+.bracket-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.bracket-row .b-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.bracket-row .b-name {
+  font-weight: 600;
+  width: 70px;
+  flex-shrink: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.bracket-row .b-pick {
+  font-weight: 600;
+  width: 100px;
+  flex-shrink: 0;
+}
+.bracket-row .b-path {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+.path-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: 4px;
+  text-transform: uppercase;
+}
+.path-tag.champ { background: rgba(255,215,0,0.2); color: var(--accent-gold); }
+.path-tag.ff { background: rgba(255,107,53,0.15); color: var(--accent-orange); }
+.path-tag.e8 { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+.path-tag.s16 { background: rgba(122,122,142,0.1); color: var(--text-dim); }
+.path-tag.r32 { background: rgba(122,122,142,0.06); color: #555; }
+.root-summary {
+  background: rgba(255,107,53,0.08);
+  border: 1px solid rgba(255,107,53,0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+.root-summary strong { color: var(--accent-orange); }
+.priority-section {
+  margin-bottom: 24px;
+}
+.priority-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.priority-title .star { color: var(--accent-gold); }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <h1>Madness Pool 2026</h1>
+  <p>Round of 64 — Rooting Dashboard</p>
+</header>
+
+<div class="bracket-bar">
+  <div class="bracket-chip">
+    <div class="dot" style="background:var(--fooman)"></div>
+    <div><span class="name">Fooman</span> <span class="champ">— Arizona</span></div>
+    <span class="priority-label" style="background:rgba(255,107,53,0.2);color:var(--fooman)">#1</span>
+  </div>
+  <div class="bracket-chip">
+    <div class="dot" style="background:var(--slosh)"></div>
+    <div><span class="name">Slosh</span> <span class="champ">— Houston</span></div>
+    <span class="priority-label" style="background:rgba(239,68,68,0.2);color:var(--slosh)">#2</span>
+  </div>
+  <div class="bracket-chip">
+    <div class="dot" style="background:var(--amanda)"></div>
+    <div><span class="name">Amanda</span> <span class="champ">— Duke</span></div>
+    <span class="priority-label" style="background:rgba(59,130,246,0.2);color:var(--amanda)">#3</span>
+  </div>
+  <div class="bracket-chip">
+    <div class="dot" style="background:var(--work)"></div>
+    <div><span class="name">Work</span> <span class="champ">— UConn</span></div>
+    <span class="priority-label" style="background:rgba(168,85,247,0.2);color:var(--work)">#4</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('thursday')">Thu Mar 19</div>
+  <div class="tab" onclick="showTab('friday')">Fri Mar 20</div>
+</div>
+
+<div class="content" id="content"></div>
+
+<script>
+var games = {
+  thursday: [
+    {
+      time: "12:15 PM", tv: "CBS", seed1: 8, team1: "Ohio State", seed2: 9, team2: "TCU", region: "EAST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "TCU", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Ohio State", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Ohio State", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "TCU", path: "R32", color: "var(--work)" }
+      ],
+      root: "Split", rootType: "split", rootNote: "2-2 split. All lose R32 — no impact."
+    },
+    {
+      time: "12:40 PM", tv: "truTV", seed1: 4, team1: "Nebraska", seed2: 13, team2: "Troy", region: "SOUTH",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Nebraska", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Troy", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Nebraska", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Troy", path: "R32", color: "var(--work)" }
+      ],
+      root: "Split", rootType: "split", rootNote: "2-2 split. Amanda gets minor edge with Nebraska to S16."
+    },
+    {
+      time: "1:30 PM", tv: "TNT", seed1: 6, team1: "Louisville", seed2: 11, team2: "South Florida", region: "EAST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "S. Florida", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "S. Florida", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Louisville", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "S. Florida", path: "R32", color: "var(--work)" }
+      ],
+      root: "S. Florida", rootType: "majority", rootNote: "3 of 4 (Fooman, Slosh, Work). Amanda has Louisville to S16."
+    },
+    {
+      time: "1:50 PM", tv: "TBS", seed1: 5, team1: "Wisconsin", seed2: 12, team2: "High Point", region: "WEST",
+      priority: "med",
+      picks: [
+        { bracket: "Fooman", pick: "Wisconsin", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Wisconsin", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Wisconsin", path: "E8", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Wisconsin", path: "FF", color: "var(--work)" }
+      ],
+      root: "Wisconsin", rootType: "unanimous", rootNote: "All 4 brackets. Final Four for Work, E8 for Amanda."
+    },
+    {
+      time: "2:50 PM", tv: "CBS", seed1: 1, team1: "Duke", seed2: 16, team2: "Siena", region: "EAST",
+      priority: "high",
+      picks: [
+        { bracket: "Fooman", pick: "Duke", path: "E8", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Duke", path: "E8", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Duke", path: "CHAMP", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Duke", path: "E8", color: "var(--work)" }
+      ],
+      root: "Duke", rootType: "unanimous", rootNote: "AMANDA'S CHAMPION. E8 in Fooman, Slosh, Work. Must-win."
+    },
+    {
+      time: "3:15 PM", tv: "truTV", seed1: 5, team1: "Vanderbilt", seed2: 12, team2: "McNeese", region: "SOUTH",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Vanderbilt", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Vanderbilt", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Vanderbilt", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Vanderbilt", path: "R32", color: "var(--work)" }
+      ],
+      root: "Vanderbilt", rootType: "unanimous", rootNote: "All 4 brackets. Low stakes — S16 max."
+    },
+    {
+      time: "4:05 PM", tv: "TNT", seed1: 3, team1: "Michigan St", seed2: 14, team2: "N. Dakota St", region: "EAST",
+      priority: "high",
+      picks: [
+        { bracket: "Fooman", pick: "Michigan St", path: "S16", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Michigan St", path: "FF", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Michigan St", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Michigan St", path: "S16", color: "var(--work)" }
+      ],
+      root: "Michigan St", rootType: "unanimous", rootNote: "SLOSH'S FINAL FOUR TEAM. S16 in Fooman, Amanda, Work."
+    },
+    {
+      time: "4:25 PM", tv: "TBS", seed1: 4, team1: "Arkansas", seed2: 13, team2: "Hawai'i", region: "WEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Arkansas", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Arkansas", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Arkansas", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Arkansas", path: "R32", color: "var(--work)" }
+      ],
+      root: "Arkansas", rootType: "unanimous", rootNote: "All 4 brackets. All lose R32 — background game."
+    },
+    {
+      time: "6:50 PM", tv: "TNT", seed1: 6, team1: "N. Carolina", seed2: 11, team2: "VCU", region: "SOUTH",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "N. Carolina", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "VCU", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "VCU", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "VCU", path: "R32", color: "var(--work)" }
+      ],
+      root: "VCU", rootType: "majority", rootNote: "3 of 4 (Slosh, Amanda, Work). All lose R32."
+    },
+    {
+      time: "7:10 PM", tv: "CBS", seed1: 1, team1: "Michigan", seed2: 16, team2: "Howard", region: "MIDWEST",
+      priority: "high",
+      picks: [
+        { bracket: "Fooman", pick: "Michigan", path: "FF", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Michigan", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Michigan", path: "FF", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Michigan", path: "SHIP", color: "var(--work)" }
+      ],
+      root: "Michigan", rootType: "unanimous", rootNote: "FOOMAN FF, AMANDA FF, WORK CHAMPIONSHIP GAME. Critical."
+    },
+    {
+      time: "7:25 PM", tv: "TBS", seed1: 6, team1: "BYU", seed2: 11, team2: "Texas", region: "WEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "BYU", path: "S16", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "BYU", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Texas", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "BYU", path: "S16", color: "var(--work)" }
+      ],
+      root: "BYU", rootType: "majority", rootNote: "3 of 4 (Fooman, Slosh, Work). All out by S16."
+    },
+    {
+      time: "7:35 PM", tv: "truTV", seed1: 7, team1: "St. Marys", seed2: 10, team2: "Texas A&M", region: "SOUTH",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "St. Marys", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Texas A&M", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Texas A&M", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "St. Marys", path: "R32", color: "var(--work)" }
+      ],
+      root: "Split", rootType: "split", rootNote: "2-2 split. All lose R32 — no impact."
+    },
+    {
+      time: "9:25 PM", tv: "TNT", seed1: 3, team1: "Illinois", seed2: 14, team2: "Penn", region: "SOUTH",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Illinois", path: "S16", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Illinois", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Illinois", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Illinois", path: "S16", color: "var(--work)" }
+      ],
+      root: "Illinois", rootType: "unanimous", rootNote: "All 4 brackets. All to S16."
+    },
+    {
+      time: "9:45 PM", tv: "CBS", seed1: 8, team1: "Georgia", seed2: 9, team2: "Saint Louis", region: "MIDWEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Saint Louis", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Saint Louis", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Saint Louis", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Georgia", path: "R32", color: "var(--work)" }
+      ],
+      root: "Saint Louis", rootType: "majority", rootNote: "3 of 4 (Fooman, Slosh, Amanda). All lose R32."
+    },
+    {
+      time: "~10:10 PM", tv: "TBS", seed1: 3, team1: "Gonzaga", seed2: 14, team2: "Kennesaw St", region: "WEST",
+      priority: "med",
+      picks: [
+        { bracket: "Fooman", pick: "Kennesaw St", path: "S16", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Gonzaga", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Gonzaga", path: "FF", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Gonzaga", path: "S16", color: "var(--work)" }
+      ],
+      root: "Gonzaga", rootType: "majority", rootNote: "AMANDA'S FINAL FOUR TEAM. 3 of 4 have Gonzaga."
+    },
+    {
+      time: "~10:10 PM", tv: "truTV", seed1: 2, team1: "Houston", seed2: 15, team2: "Idaho", region: "SOUTH",
+      priority: "high",
+      picks: [
+        { bracket: "Fooman", pick: "Houston", path: "FF", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Houston", path: "CHAMP", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Houston", path: "E8", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Houston", path: "R32", color: "var(--work)" }
+      ],
+      root: "Houston", rootType: "unanimous", rootNote: "SLOSH'S CHAMPION. FOOMAN FF. Amanda E8. Massive."
+    }
+  ],
+  friday: [
+    {
+      time: "12:15 PM", tv: "CBS", seed1: 7, team1: "Kentucky", seed2: 10, team2: "Santa Clara", region: "MIDWEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Santa Clara", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Kentucky", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Kentucky", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Kentucky", path: "S16", color: "var(--work)" }
+      ],
+      root: "Kentucky", rootType: "majority", rootNote: "3 of 4 (Slosh, Amanda, Work). All to S16 max."
+    },
+    {
+      time: "12:40 PM", tv: "truTV", seed1: 5, team1: "Texas Tech", seed2: 12, team2: "Akron", region: "MIDWEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Akron", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Texas Tech", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Akron", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Texas Tech", path: "S16", color: "var(--work)" }
+      ],
+      root: "Split", rootType: "split", rootNote: "2-2 split. Low stakes either way."
+    },
+    {
+      time: "1:35 PM", tv: "TNT", seed1: 1, team1: "Arizona", seed2: 16, team2: "LIU", region: "WEST",
+      priority: "high",
+      picks: [
+        { bracket: "Fooman", pick: "Arizona", path: "CHAMP", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Arizona", path: "E8", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Arizona", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Arizona", path: "S16", color: "var(--work)" }
+      ],
+      root: "Arizona", rootType: "unanimous", rootNote: "FOOMAN'S CHAMPION. Slosh E8. The #1 priority game Friday."
+    },
+    {
+      time: "1:50 PM", tv: "TBS", seed1: 3, team1: "Virginia", seed2: 14, team2: "Wright State", region: "MIDWEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Virginia", path: "E8", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Virginia", path: "E8", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Virginia", path: "E8", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Virginia", path: "S16", color: "var(--work)" }
+      ],
+      root: "Virginia", rootType: "unanimous", rootNote: "All 4 brackets. E8 in Fooman, Slosh, Amanda."
+    },
+    {
+      time: "2:50 PM", tv: "CBS", seed1: 2, team1: "Iowa State", seed2: 15, team2: "Tennessee St", region: "MIDWEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Iowa State", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Iowa State", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Iowa State", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Iowa State", path: "S16", color: "var(--work)" }
+      ],
+      root: "Iowa State", rootType: "unanimous", rootNote: "All 4. S16 in Slosh, Amanda, Work."
+    },
+    {
+      time: "3:15 PM", tv: "truTV", seed1: 4, team1: "Alabama", seed2: 13, team2: "Hofstra", region: "MIDWEST",
+      priority: "med",
+      picks: [
+        { bracket: "Fooman", pick: "Alabama", path: "S16", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Alabama", path: "FF", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Alabama", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Hofstra", path: "R32", color: "var(--work)" }
+      ],
+      root: "Alabama", rootType: "majority", rootNote: "SLOSH'S FINAL FOUR TEAM (Midwest). 3 of 4."
+    },
+    {
+      time: "4:10 PM", tv: "TNT", seed1: 8, team1: "Villanova", seed2: 9, team2: "Utah State", region: "WEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Utah State", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Villanova", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Villanova", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Villanova", path: "R32", color: "var(--work)" }
+      ],
+      root: "Villanova", rootType: "majority", rootNote: "3 of 4. All lose R32."
+    },
+    {
+      time: "4:25 PM", tv: "TBS", seed1: 6, team1: "Tennessee", seed2: 11, team2: "Miami Ohio", region: "MIDWEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Tennessee", path: "S16", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Tennessee", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Miami Ohio", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Tennessee", path: "S16", color: "var(--work)" }
+      ],
+      root: "Tennessee", rootType: "majority", rootNote: "3 of 4 (Fooman, Slosh, Work). S16 max."
+    },
+    {
+      time: "6:50 PM", tv: "TNT", seed1: 8, team1: "Clemson", seed2: 9, team2: "Iowa", region: "SOUTH",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Iowa", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Clemson", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Iowa", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Clemson", path: "R32", color: "var(--work)" }
+      ],
+      root: "Split", rootType: "split", rootNote: "2-2 split. All lose R32 — doesn't matter."
+    },
+    {
+      time: "7:10 PM", tv: "CBS", seed1: 5, team1: "St. Johns", seed2: 12, team2: "N. Iowa", region: "EAST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "St. Johns", path: "S16", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "St. Johns", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "St. Johns", path: "S16", color: "var(--amanda)" },
+        { bracket: "Work", pick: "St. Johns", path: "R32", color: "var(--work)" }
+      ],
+      root: "St. Johns", rootType: "unanimous", rootNote: "All 4. S16 in Fooman, Slosh, Amanda."
+    },
+    {
+      time: "7:25 PM", tv: "TBS", seed1: 7, team1: "UCLA", seed2: 10, team2: "UCF", region: "EAST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "UCLA", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "UCLA", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "UCLA", path: "E8", color: "var(--amanda)" },
+        { bracket: "Work", pick: "UCLA", path: "R32", color: "var(--work)" }
+      ],
+      root: "UCLA", rootType: "unanimous", rootNote: "All 4. Amanda has them to E8."
+    },
+    {
+      time: "7:35 PM", tv: "truTV", seed1: 2, team1: "Purdue", seed2: 15, team2: "Queens", region: "WEST",
+      priority: "med",
+      picks: [
+        { bracket: "Fooman", pick: "Purdue", path: "E8", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Purdue", path: "E8", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Purdue", path: "E8", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Purdue", path: "E8", color: "var(--work)" }
+      ],
+      root: "Purdue", rootType: "unanimous", rootNote: "All 4 to E8. Solid across the board."
+    },
+    {
+      time: "9:25 PM", tv: "TNT", seed1: 1, team1: "Florida", seed2: 16, team2: "Prairie View", region: "SOUTH",
+      priority: "high",
+      picks: [
+        { bracket: "Fooman", pick: "Florida", path: "E8", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Florida", path: "E8", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Florida", path: "FF", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Florida", path: "FF", color: "var(--work)" }
+      ],
+      root: "Florida", rootType: "unanimous", rootNote: "FF for Amanda & Work. E8 for Fooman & Slosh. Big game."
+    },
+    {
+      time: "9:45 PM", tv: "CBS", seed1: 4, team1: "Kansas", seed2: 13, team2: "Cal Baptist", region: "EAST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Kansas", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Kansas", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Kansas", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Kansas", path: "S16", color: "var(--work)" }
+      ],
+      root: "Kansas", rootType: "unanimous", rootNote: "All 4. Work has them to S16."
+    },
+    {
+      time: "10:00 PM", tv: "TBS", seed1: 2, team1: "UConn", seed2: 15, team2: "Furman", region: "EAST",
+      priority: "high",
+      picks: [
+        { bracket: "Fooman", pick: "UConn", path: "SHIP", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "UConn", path: "S16", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "UConn", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "UConn", path: "CHAMP", color: "var(--work)" }
+      ],
+      root: "UConn", rootType: "unanimous", rootNote: "WORK'S CHAMPION. Fooman championship game. Essential."
+    },
+    {
+      time: "10:10 PM", tv: "truTV", seed1: 7, team1: "Miami", seed2: 10, team2: "Missouri", region: "WEST",
+      priority: "low",
+      picks: [
+        { bracket: "Fooman", pick: "Miami", path: "R32", color: "var(--fooman)" },
+        { bracket: "Slosh", pick: "Miami", path: "R32", color: "var(--slosh)" },
+        { bracket: "Amanda", pick: "Miami", path: "R32", color: "var(--amanda)" },
+        { bracket: "Work", pick: "Miami", path: "R32", color: "var(--work)" }
+      ],
+      root: "Miami", rootType: "unanimous", rootNote: "All 4. All lose R32. Background game."
+    }
+  ]
+};
+
+function pathLabel(path) {
+  var map = {
+    "R32": '<span class="path-tag r32">R32</span>',
+    "S16": '<span class="path-tag s16">S16</span>',
+    "E8": '<span class="path-tag e8">E8</span>',
+    "FF": '<span class="path-tag ff">F4</span>',
+    "SHIP": '<span class="path-tag ff">Finals</span>',
+    "CHAMP": '<span class="path-tag champ">CHAMP</span>'
+  };
+  return map[path] || path;
+}
+
+function renderGames(day) {
+  var list = games[day];
+  var highGames = [];
+  var medGames = [];
+  var lowGames = [];
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].priority === "high") highGames.push(list[i]);
+    else if (list[i].priority === "med") medGames.push(list[i]);
+    else lowGames.push(list[i]);
+  }
+
+  var html = '';
+
+  if (highGames.length) {
+    html += '<div class="priority-section">';
+    html += '<div class="priority-title"><span class="star">★★★</span> MUST-WATCH GAMES</div>';
+    for (var i = 0; i < highGames.length; i++) html += renderCard(highGames[i]);
+    html += '</div>';
+  }
+  if (medGames.length) {
+    html += '<div class="priority-section">';
+    html += '<div class="priority-title"><span class="star">★★</span> IMPORTANT GAMES</div>';
+    for (var i = 0; i < medGames.length; i++) html += renderCard(medGames[i]);
+    html += '</div>';
+  }
+  if (lowGames.length) {
+    html += '<div class="priority-section">';
+    html += '<div class="priority-title"><span class="star">★</span> OTHER GAMES</div>';
+    for (var i = 0; i < lowGames.length; i++) html += renderCard(lowGames[i]);
+    html += '</div>';
+  }
+  return html;
+}
+
+function renderCard(g) {
+  var id = g.team1.replace(/[^a-z]/gi,'') + g.team2.replace(/[^a-z]/gi,'');
+  var html = '<div class="game-card priority-' + g.priority + '">';
+  html += '<div class="game-header" onclick="toggleDetails(\'' + id + '\')">';
+  html += '<div class="game-time">' + g.time + '</div>';
+  html += '<div class="game-matchup"><span class="seed">(' + g.seed1 + ')</span> ' + g.team1 + ' <span class="vs">vs</span> <span class="seed">(' + g.seed2 + ')</span> ' + g.team2 + '</div>';
+  html += '<span class="root-badge ' + g.rootType + '">' + g.root + '</span>';
+  html += '<span class="game-tv">' + g.tv + '</span>';
+  html += '</div>';
+  html += '<div class="game-details" id="details-' + id + '">';
+  for (var i = 0; i < g.picks.length; i++) {
+    var p = g.picks[i];
+    html += '<div class="bracket-row">';
+    html += '<div class="b-dot" style="background:' + p.color + '"></div>';
+    html += '<div class="b-name" style="color:' + p.color + '">' + p.bracket + '</div>';
+    html += '<div class="b-pick">' + p.pick + '</div>';
+    html += '<div class="b-path">→ ' + pathLabel(p.path) + '</div>';
+    html += '</div>';
+  }
+  html += '<div class="root-summary"><strong>Root for:</strong> ' + g.rootNote + '</div>';
+  html += '</div></div>';
+  return html;
+}
+
+function toggleDetails(id) {
+  var el = document.getElementById('details-' + id);
+  if (el.classList.contains('open')) el.classList.remove('open');
+  else el.classList.add('open');
+}
+
+function showTab(day) {
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  if (day === 'thursday') tabs[0].classList.add('active');
+  else tabs[1].classList.add('active');
+  document.getElementById('content').innerHTML = renderGames(day);
+}
+
+showTab('thursday');
+</script>
+
+</body>
+</html>
