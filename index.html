@@ -1,204 +1,255 @@
-import { useState } from “react”;
+<!DOCTYPE html>
 
-const BRACKETS = [
-{ name: “Fooman”, champ: “Arizona”, color: “#ff6b35”, r64: “25/32”, status: “Champ alive (R32 Sun)” },
-{ name: “Slosh”, champ: “Houston”, color: “#ef4444”, r64: “24/32”, status: “Champ in S16 ✅” },
-{ name: “Amanda”, champ: “Duke”, color: “#3b82f6”, r64: “24/32”, status: “Champ in S16 ✅” },
-{ name: “Work”, champ: “UConn”, color: “#a855f7”, r64: “23/32”, status: “Champ alive (R32 Sun)” },
-];
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madness Pool 2026</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#e8e8ed;font-family:-apple-system,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+.hd{padding:16px;border-bottom:1px solid #1e1e2e}
+.hd h1{font-size:20px;font-weight:800;letter-spacing:2px;color:#ff6b35}
+.hd p{color:#7a7a8e;font-size:11px;margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px}
+.bx{background:#14141f;border:1px solid #1e1e2e;border-radius:8px;padding:8px 4px;text-align:center}
+.bx .nm{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.bx .ch{font-size:8px;color:#7a7a8e}
+.bx .num{font-size:20px;font-weight:800;margin-top:2px}
+.bx .st{font-size:8px;color:#22c55e;font-weight:600;margin-top:2px}
+.bar{padding:8px 12px;font-size:10px;color:#ffd700;border-bottom:1px solid #1e1e2e;font-weight:600;text-align:center;background:rgba(255,215,0,.04);line-height:1.4}
+.tabs{display:flex;border-bottom:1px solid #1e1e2e;overflow-x:auto}
+.tb{padding:10px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#7a7a8e;border-bottom:2px solid transparent;cursor:pointer}
+.tb.on{color:#ff6b35;border-bottom-color:#ff6b35}
+.ct{padding:8px 8px 80px}
+.cd{background:#14141f;border:1px solid #1e1e2e;border-radius:8px;padding:10px;margin-bottom:6px}
+.cd.red{border-left:3px solid #ef4444}
+.cd.grn{border-left:3px solid #22c55e}
+.cd.yel{border-left:3px solid #ffd700}
+.cd.org{border-left:3px solid #ff6b35}
+.cd h3{font-size:13px;font-weight:700;margin-bottom:4px}
+.cd p{font-size:11px;color:#9a9aae;line-height:1.5}
+.cd .ok{color:#22c55e}.cd .no{color:#ef4444}.cd .gd{color:#ffd700}
+.lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#7a7a8e;padding:10px 2px 4px}
+.row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.bnm{font-weight:600;width:55px;flex-shrink:0;font-size:10px;text-transform:uppercase}
+.det{display:none;margin-top:8px;border-top:1px solid #1e1e2e;padding-top:8px}
+.det.open{display:block}
+.hdr{display:flex;align-items:center;gap:6px;cursor:pointer}
+.tm{font-size:10px;color:#7a7a8e;font-weight:600;width:40px;flex-shrink:0}
+.gm{flex:1;font-weight:700;font-size:12px}
+.tg{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
+.tg.w{background:rgba(34,197,94,.15);color:#22c55e}
+.tg.p{background:rgba(255,215,0,.15);color:#ffd700}
+.tg.ch{background:rgba(255,215,0,.2);color:#ffd700}
+.tg.ff{background:rgba(255,107,53,.15);color:#ff6b35}
+.hidden{display:none}
+</style>
+</head>
+<body>
 
-const BUSTS = [
-{ game: “(12) High Point over (5) Wisconsin”, impact: “ALL 4 had Wisconsin. Work lost FF team. Amanda lost E8 team.”, severity: “high” },
-{ game: “(11) Texas over (3) Gonzaga — R32”, impact: “Amanda’s FF team GONE. Slosh & Work also had Gonzaga advancing.”, severity: “high” },
-{ game: “(9) Utah State over (8) Villanova”, impact: “Slosh/Amanda/Work all missed. Fooman only one right — helps his Arizona path!”, severity: “med” },
-{ game: “(6) Louisville beat (11) S. Florida”, impact: “Fooman/Slosh/Work all had S. Florida. Amanda nailed Louisville.”, severity: “low” },
-{ game: “(11) Texas over (6) BYU”, impact: “Fooman/Slosh/Work had BYU. Amanda nailed the Texas upset!”, severity: “med” },
-];
-
-const R32_RESULTS = [
-{ time: “12:10”, game: “(1) Michigan 95 vs (9) Saint Louis 72”, winner: “Michigan”, done: true,
-picks: { Fooman: “Michigan ✅ → need FF”, Slosh: “— (had Mich R32 exit)”, Amanda: “Michigan ✅ → need FF”, Work: “Michigan ✅ → need Finals” }},
-{ time: “2:45”, game: “(3) Michigan St 77 vs (6) Louisville 69”, winner: “MSU”, done: true,
-picks: { Fooman: “N/A this matchup”, Slosh: “MSU ✅ → need FF!”, Amanda: “Louisville ❌ BUST”, Work: “MSU ✅” }},
-{ time: “5:15”, game: “(1) Duke 81 vs (9) TCU 58”, winner: “Duke”, done: true,
-picks: { Fooman: “Duke ✅ → E8 pick”, Slosh: “Duke ✅ → E8 pick”, Amanda: “Duke ✅ → CHAMP!”, Work: “Duke ✅ → E8 pick” }},
-{ time: “6:10”, game: “(2) Houston 88 vs (10) Texas A&M 57”, winner: “Houston”, done: true,
-picks: { Fooman: “Houston ✅ → FF pick”, Slosh: “Houston ✅ → CHAMP!”, Amanda: “Houston ✅ → E8 pick”, Work: “— (had Hou R64 exit)” }},
-{ time: “7:10”, game: “(11) Texas 74 vs (3) Gonzaga 68”, winner: “Texas”, done: true,
-picks: { Fooman: “N/A (had Kennesaw)”, Slosh: “Gonzaga ❌”, Amanda: “Gonzaga ❌ FF TEAM GONE!”, Work: “Gonzaga ❌” }},
-{ time: “7:50”, game: “(3) Illinois vs (11) VCU”, winner: “Illinois”, done: true,
-picks: { Fooman: “Illinois ✅”, Slosh: “Illinois ✅”, Amanda: “Illinois ✅”, Work: “VCU ❌” }},
-{ time: “8:45”, game: “(4) Nebraska vs (5) Vanderbilt”, winner: “TBD”, done: false,
-picks: { Fooman: “Low stakes”, Slosh: “Low stakes”, Amanda: “Want Vandy (S16 pick)”, Work: “Low stakes” }},
-{ time: “9:45”, game: “(4) Arkansas vs (12) High Point”, winner: “TBD”, done: false,
-picks: { Fooman: “Low stakes”, Slosh: “Low stakes”, Amanda: “Low stakes”, Work: “Low stakes” }},
-];
-
-const SUNDAY = [
-{ time: “12:10”, game: “Purdue vs Miami”, why: “All 4 have Purdue to E8” },
-{ time: “2:40”, game: “Iowa State vs Kentucky”, why: “Slosh/Amanda/Work have ISU” },
-{ time: “5:15”, game: “Kansas vs St. Johns”, why: “Winner faces Duke in S16” },
-{ time: “6:10”, game: “Tennessee vs Virginia”, why: “Fooman/Slosh/Amanda have UVA to E8” },
-{ time: “7:10”, game: “Florida vs Iowa”, why: “Amanda & Work FF team (Florida)” },
-{ time: “7:50”, game: “Arizona vs Utah State”, why: “FOOMAN’S CHAMPION — must win” },
-{ time: “8:20”, game: “Alabama vs Texas Tech”, why: “SLOSH’S FF TEAM (Alabama)” },
-{ time: “8:45”, game: “UConn vs UCLA”, why: “WORK’S CHAMPION — must win” },
-];
-
-export default function App() {
-const [tab, setTab] = useState(“damage”);
-
-return (
-<div style={{ background: “#0a0a0f”, color: “#e8e8ed”, minHeight: “100vh”, fontFamily: “‘Segoe UI’, system-ui, sans-serif” }}>
-<div style={{ padding: “16px 16px 10px”, borderBottom: “1px solid #1e1e2e” }}>
-<h1 style={{ fontSize: 20, fontWeight: 800, textTransform: “uppercase”, letterSpacing: 2, background: “linear-gradient(90deg, #ff6b35, #ffd700)”, WebkitBackgroundClip: “text”, WebkitTextFillColor: “transparent” }}>
-Madness Pool 2026
-</h1>
-<p style={{ color: “#7a7a8e”, fontSize: 11, marginTop: 2 }}>Updated Sat Mar 21 — R32 in progress</p>
+<div class="hd">
+<h1>MADNESS POOL 2026</h1>
+<p>Updated Sat Mar 21 — R64 Done, R32 In Progress</p>
 </div>
 
-```
-  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 4, padding: "8px 8px 0" }}>
-    {BRACKETS.map(b => (
-      <div key={b.name} style={{ background: "#14141f", border: "1px solid #1e1e2e", borderRadius: 8, padding: "8px 4px", textAlign: "center" }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: b.color, textTransform: "uppercase" }}>{b.name}</div>
-        <div style={{ fontSize: 8, color: "#7a7a8e" }}>{b.champ}</div>
-        <div style={{ fontSize: 20, fontWeight: 800, marginTop: 2 }}>{b.r64}</div>
-        <div style={{ fontSize: 8, color: "#22c55e", fontWeight: 600, marginTop: 2 }}>{b.status}</div>
-      </div>
-    ))}
-  </div>
-
-  <div style={{ display: "flex", borderBottom: "1px solid #1e1e2e", marginTop: 8, overflowX: "auto" }}>
-    {["damage", "r32", "sunday"].map(t => (
-      <div key={t} onClick={() => setTab(t)}
-        style={{ padding: "10px 14px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, cursor: "pointer", borderBottom: tab === t ? "2px solid #ff6b35" : "2px solid transparent", color: tab === t ? "#ff6b35" : "#7a7a8e" }}>
-        {t === "damage" ? "Damage" : t === "r32" ? "R32 Today" : "Sunday"}
-      </div>
-    ))}
-  </div>
-
-  <div style={{ padding: "8px 8px 60px" }}>
-    {tab === "damage" && <DamageTab />}
-    {tab === "r32" && <R32Tab />}
-    {tab === "sunday" && <SundayTab />}
-  </div>
+<div class="grid">
+<div class="bx"><div class="nm" style="color:#ff6b35">Fooman</div><div class="ch">Arizona</div><div class="num">25<span style="font-size:12px;color:#7a7a8e">/32</span></div><div class="st">Champ alive</div></div>
+<div class="bx"><div class="nm" style="color:#ef4444">Slosh</div><div class="ch">Houston</div><div class="num">24<span style="font-size:12px;color:#7a7a8e">/32</span></div><div class="st">Champ S16 ✅</div></div>
+<div class="bx"><div class="nm" style="color:#3b82f6">Amanda</div><div class="ch">Duke</div><div class="num">24<span style="font-size:12px;color:#7a7a8e">/32</span></div><div class="st">Champ S16 ✅</div></div>
+<div class="bx"><div class="nm" style="color:#a855f7">Work</div><div class="ch">UConn</div><div class="num">23<span style="font-size:12px;color:#7a7a8e">/32</span></div><div class="st">Champ alive</div></div>
 </div>
-```
 
-);
+<div class="bar">R32: Michigan ✅ | MSU ✅ | Duke ✅ | Houston ✅ | Gonzaga ❌ OUT | Illinois ✅</div>
+
+<div class="tabs">
+<div class="tb on" id="t0" onclick="sw(0)">Damage</div>
+<div class="tb" id="t1" onclick="sw(1)">R32 Sat</div>
+<div class="tb" id="t2" onclick="sw(2)">Sunday</div>
+</div>
+
+<div class="ct">
+<!-- DAMAGE TAB -->
+<div id="p0">
+<div class="lbl">Champion Tracker</div>
+
+<div class="cd org">
+<h3 style="color:#ff6b35">FOOMAN — Arizona (25/32)</h3>
+<p>Arizona 92-58 LIU ✅. R32 Sunday vs Utah State.<br>
+<span class="ok">✅ Arizona, Houston (FF), Michigan (FF), Duke (E8), UConn (Finals) all alive</span><br>
+<span class="no">❌ Wisconsin bust hurts West. BYU bust. But champion path intact.</span></p>
+</div>
+
+<div class="cd red">
+<h3 style="color:#ef4444">SLOSH — Houston (24/32)</h3>
+<p>Houston 88-57 TAMU ✅. Now S16 vs Illinois.<br>
+<span class="ok">✅ Houston (S16!), MSU (FF, S16!), Alabama (FF, alive), Duke (E8, S16!)</span><br>
+<span class="no">❌ Wisconsin bust kills West. Gonzaga out R32.</span></p>
+</div>
+
+<div class="cd" style="border-left:3px solid #3b82f6">
+<h3 style="color:#3b82f6">AMANDA — Duke (24/32)</h3>
+<p>Duke 81-58 TCU ✅. S16 vs Kansas/St. Johns winner.<br>
+<span class="ok">✅ Duke (S16!), Michigan (FF, S16!), Florida (FF), Alabama (S16)</span><br>
+<span class="no">❌ GONZAGA (FF TEAM) ELIMINATED! West bracket destroyed. Wisconsin bust. Louisville lost R32.</span></p>
+</div>
+
+<div class="cd" style="border-left:3px solid #a855f7">
+<h3 style="color:#a855f7">WORK — UConn (23/32)</h3>
+<p>UConn won R64. R32 Sunday vs UCLA.<br>
+<span class="ok">✅ UConn alive, Michigan (Finals, S16!), Duke (E8, S16!), Florida (FF)</span><br>
+<span class="no">❌ WISCONSIN (FF TEAM) OUT R64! Gonzaga out R32. VCU lost R32. West gone.</span></p>
+</div>
+
+<div class="lbl">Biggest Busts</div>
+
+<div class="cd red">
+<h3 style="color:#ef4444">(12) High Point over (5) Wisconsin</h3>
+<p>ALL 4 brackets had Wisconsin. Work lost FF team. Amanda lost E8 team. Devastating.</p>
+</div>
+
+<div class="cd red">
+<h3 style="color:#ef4444">(11) Texas over (3) Gonzaga — R32</h3>
+<p>Amanda's FF TEAM gone. Slosh & Work also had Gonzaga advancing. West bracket wrecked for 3 brackets.</p>
+</div>
+
+<div class="cd yel">
+<h3 style="color:#ff6b35">(9) Utah State over (8) Villanova</h3>
+<p>Slosh/Amanda/Work all missed. Fooman only one right — actually helps his Arizona path!</p>
+</div>
+
+<div class="cd yel">
+<h3 style="color:#ff6b35">(11) Texas over (6) BYU + Louisville over S. Florida</h3>
+<p>Amanda nailed BOTH of these. Only bracket with Texas and Louisville correct.</p>
+</div>
+</div>
+
+<!-- R32 TAB -->
+
+<div id="p1" class="hidden">
+<div class="lbl">Saturday R32 — Completed</div>
+
+<div class="cd grn">
+<div class="hdr" onclick="tgl('d0')"><span class="tm">12:10</span><span class="gm">(1) Michigan 95 vs (9) Saint Louis 72</span><span class="tg w">Michigan</span></div>
+<div class="det" id="d0">
+<div class="row"><div class="dot" style="background:#ff6b35"></div><div class="bnm" style="color:#ff6b35">Fooman</div>Michigan ✅ → need FF</div>
+<div class="row"><div class="dot" style="background:#ef4444"></div><div class="bnm" style="color:#ef4444">Slosh</div>— (had Mich R32 exit)</div>
+<div class="row"><div class="dot" style="background:#3b82f6"></div><div class="bnm" style="color:#3b82f6">Amanda</div>Michigan ✅ → need FF</div>
+<div class="row"><div class="dot" style="background:#a855f7"></div><div class="bnm" style="color:#a855f7">Work</div>Michigan ✅ → need Finals</div>
+</div></div>
+
+<div class="cd grn">
+<div class="hdr" onclick="tgl('d1')"><span class="tm">2:45</span><span class="gm">(3) MSU 77 vs (6) Louisville 69</span><span class="tg w">MSU</span></div>
+<div class="det" id="d1">
+<div class="row"><div class="dot" style="background:#ff6b35"></div><div class="bnm" style="color:#ff6b35">Fooman</div>N/A this matchup</div>
+<div class="row"><div class="dot" style="background:#ef4444"></div><div class="bnm" style="color:#ef4444">Slosh</div>MSU ✅ → need FF!</div>
+<div class="row"><div class="dot" style="background:#3b82f6"></div><div class="bnm" style="color:#3b82f6">Amanda</div><span style="color:#ef4444">Louisville ❌ BUST</span></div>
+<div class="row"><div class="dot" style="background:#a855f7"></div><div class="bnm" style="color:#a855f7">Work</div>MSU ✅</div>
+</div></div>
+
+<div class="cd grn">
+<div class="hdr" onclick="tgl('d2')"><span class="tm">5:15</span><span class="gm">(1) Duke 81 vs (9) TCU 58</span><span class="tg w">Duke</span></div>
+<div class="det" id="d2">
+<div class="row"><div class="dot" style="background:#ff6b35"></div><div class="bnm" style="color:#ff6b35">Fooman</div>Duke ✅ → E8 pick</div>
+<div class="row"><div class="dot" style="background:#ef4444"></div><div class="bnm" style="color:#ef4444">Slosh</div>Duke ✅ → E8 pick</div>
+<div class="row"><div class="dot" style="background:#3b82f6"></div><div class="bnm" style="color:#3b82f6">Amanda</div><span style="color:#ffd700">Duke ✅ → CHAMP PATH!</span></div>
+<div class="row"><div class="dot" style="background:#a855f7"></div><div class="bnm" style="color:#a855f7">Work</div>Duke ✅ → E8 pick</div>
+</div></div>
+
+<div class="cd grn">
+<div class="hdr" onclick="tgl('d3')"><span class="tm">6:10</span><span class="gm">(2) Houston 88 vs (10) TAMU 57</span><span class="tg w">Houston</span></div>
+<div class="det" id="d3">
+<div class="row"><div class="dot" style="background:#ff6b35"></div><div class="bnm" style="color:#ff6b35">Fooman</div>Houston ✅ → FF pick</div>
+<div class="row"><div class="dot" style="background:#ef4444"></div><div class="bnm" style="color:#ef4444">Slosh</div><span style="color:#ffd700">Houston ✅ → CHAMP PATH!</span></div>
+<div class="row"><div class="dot" style="background:#3b82f6"></div><div class="bnm" style="color:#3b82f6">Amanda</div>Houston ✅ → E8 pick</div>
+<div class="row"><div class="dot" style="background:#a855f7"></div><div class="bnm" style="color:#a855f7">Work</div>— (had Hou R64 exit)</div>
+</div></div>
+
+<div class="cd red">
+<div class="hdr" onclick="tgl('d4')"><span class="tm">7:10</span><span class="gm">(11) Texas 74 vs (3) Gonzaga 68</span><span class="tg" style="background:rgba(239,68,68,.15);color:#ef4444">UPSET</span></div>
+<div class="det" id="d4">
+<div class="row"><div class="dot" style="background:#ff6b35"></div><div class="bnm" style="color:#ff6b35">Fooman</div>N/A (had Kennesaw)</div>
+<div class="row"><div class="dot" style="background:#ef4444"></div><div class="bnm" style="color:#ef4444">Slosh</div><span style="color:#ef4444">Gonzaga ❌</span></div>
+<div class="row"><div class="dot" style="background:#3b82f6"></div><div class="bnm" style="color:#3b82f6">Amanda</div><span style="color:#ef4444">Gonzaga ❌ FF TEAM GONE!</span></div>
+<div class="row"><div class="dot" style="background:#a855f7"></div><div class="bnm" style="color:#a855f7">Work</div><span style="color:#ef4444">Gonzaga ❌</span></div>
+</div></div>
+
+<div class="cd grn">
+<div class="hdr" onclick="tgl('d5')"><span class="tm">7:50</span><span class="gm">(3) Illinois vs (11) VCU</span><span class="tg w">Illinois</span></div>
+<div class="det" id="d5">
+<div class="row"><div class="dot" style="background:#ff6b35"></div><div class="bnm" style="color:#ff6b35">Fooman</div>Illinois ✅ (all had them losing S16)</div>
+<div class="row"><div class="dot" style="background:#ef4444"></div><div class="bnm" style="color:#ef4444">Slosh</div>Illinois ✅</div>
+<div class="row"><div class="dot" style="background:#3b82f6"></div><div class="bnm" style="color:#3b82f6">Amanda</div>Illinois ✅</div>
+<div class="row"><div class="dot" style="background:#a855f7"></div><div class="bnm" style="color:#a855f7">Work</div><span style="color:#ef4444">VCU ❌</span></div>
+</div></div>
+
+<div class="cd yel">
+<div class="hdr"><span class="tm">8:45</span><span class="gm">(4) Nebraska vs (5) Vanderbilt</span><span class="tg p">TBD</span></div>
+</div>
+<div class="cd yel">
+<div class="hdr"><span class="tm">9:45</span><span class="gm">(4) Arkansas vs (12) High Point</span><span class="tg p">TBD</span></div>
+</div>
+</div>
+
+<!-- SUNDAY TAB -->
+
+<div id="p2" class="hidden">
+<div class="lbl">Sunday R32 — Must Watch</div>
+
+<div class="cd yel">
+<div class="hdr"><span class="tm">7:50</span><span class="gm">Arizona vs Utah State</span><span class="tg ch">CHAMP</span></div>
+<p style="font-size:11px;color:#ffd700;margin-top:4px">FOOMAN'S CHAMPION. Must win. Utah State upset Villanova so this is live.</p>
+</div>
+
+<div class="cd yel">
+<div class="hdr"><span class="tm">8:45</span><span class="gm">UConn vs UCLA</span><span class="tg ch">CHAMP</span></div>
+<p style="font-size:11px;color:#ffd700;margin-top:4px">WORK'S CHAMPION. Must win. Also Fooman has UConn to Finals.</p>
+</div>
+
+<div class="cd org">
+<div class="hdr"><span class="tm">8:20</span><span class="gm">Alabama vs Texas Tech</span><span class="tg ff">F4</span></div>
+<p style="font-size:11px;color:#ff6b35;margin-top:4px">SLOSH'S FINAL FOUR TEAM (Alabama). Must win.</p>
+</div>
+
+<div class="cd org">
+<div class="hdr"><span class="tm">7:10</span><span class="gm">Florida vs Iowa</span><span class="tg ff">F4</span></div>
+<p style="font-size:11px;color:#ff6b35;margin-top:4px">Amanda & Work have Florida as FF team. Big game.</p>
+</div>
+
+<div class="cd">
+<div class="hdr"><span class="tm">12:10</span><span class="gm">Purdue vs Miami</span></div>
+<p style="font-size:11px;color:#9a9aae;margin-top:4px">All 4 have Purdue to E8. Unanimous root.</p>
+</div>
+
+<div class="cd">
+<div class="hdr"><span class="tm">2:40</span><span class="gm">Iowa State vs Kentucky</span></div>
+<p style="font-size:11px;color:#9a9aae;margin-top:4px">Slosh/Amanda/Work have Iowa State advancing.</p>
+</div>
+
+<div class="cd">
+<div class="hdr"><span class="tm">5:15</span><span class="gm">Kansas vs St. Johns</span></div>
+<p style="font-size:11px;color:#9a9aae;margin-top:4px">Winner faces Duke in S16. Fooman/Slosh/Amanda had St. Johns.</p>
+</div>
+
+<div class="cd">
+<div class="hdr"><span class="tm">6:10</span><span class="gm">Tennessee vs Virginia</span></div>
+<p style="font-size:11px;color:#9a9aae;margin-top:4px">Fooman/Slosh/Amanda have Virginia to E8.</p>
+</div>
+</div>
+</div>
+
+<script>
+function sw(n){
+for(var i=0;i<3;i++){
+document.getElementById('t'+i).className='tb'+(i===n?' on':'');
+document.getElementById('p'+i).className=i===n?'':'hidden';
+}}
+function tgl(id){
+var e=document.getElementById(id);
+if(e)e.className=e.className==='det'?'det open':'det';
 }
+</script>
 
-function DamageTab() {
-return (
-<div>
-<Label>Champion Tracker</Label>
-{BRACKETS.map(b => (
-<Card key={b.name} borderColor={b.color}>
-<div style={{ fontWeight: 800, fontSize: 14, color: b.color, textTransform: “uppercase” }}>
-{b.name} — {b.champ} {b.name === “Slosh” || b.name === “Amanda” ? “✅ IN S16” : “⏳ R32 Sunday”}
-</div>
-{b.name === “Fooman” && <div style={{ fontSize: 12, marginTop: 4, color: “#9a9aae”, lineHeight: 1.6 }}>
-Arizona 92-58 LIU ✅. R32 Sun vs Utah State.<br/>
-<span style={{color:”#22c55e”}}>✅ Arizona, Houston (FF), Michigan (FF), Duke (E8), UConn (Finals) all alive</span><br/>
-<span style={{color:”#ef4444”}}>❌ Wisconsin bust hurts West. BYU bust. But champion path intact.</span>
-</div>}
-{b.name === “Slosh” && <div style={{ fontSize: 12, marginTop: 4, color: “#9a9aae”, lineHeight: 1.6 }}>
-Houston 88-57 TAMU ✅. Now S16 vs Illinois.<br/>
-<span style={{color:”#22c55e”}}>✅ Houston (S16!), MSU (FF, S16!), Alabama (FF, alive), Duke (E8, S16!)</span><br/>
-<span style={{color:”#ef4444”}}>❌ Wisconsin bust kills West. Gonzaga out R32.</span>
-</div>}
-{b.name === “Amanda” && <div style={{ fontSize: 12, marginTop: 4, color: “#9a9aae”, lineHeight: 1.6 }}>
-Duke 81-58 TCU ✅. S16 vs Kansas/St. Johns winner.<br/>
-<span style={{color:”#22c55e”}}>✅ Duke (S16!), Michigan (FF, S16!), Florida (FF), Alabama (S16)</span><br/>
-<span style={{color:”#ef4444”}}>❌ GONZAGA (FF TEAM) ELIMINATED! West bracket destroyed. Wisconsin bust. Louisville lost R32.</span>
-</div>}
-{b.name === “Work” && <div style={{ fontSize: 12, marginTop: 4, color: “#9a9aae”, lineHeight: 1.6 }}>
-UConn won R64. R32 Sunday vs UCLA.<br/>
-<span style={{color:”#22c55e”}}>✅ UConn alive, Michigan (Finals, S16!), Duke (E8, S16!), Florida (FF)</span><br/>
-<span style={{color:”#ef4444”}}>❌ WISCONSIN (FF TEAM) OUT R64! Gonzaga out R32. VCU lost R32. West gone.</span>
-</div>}
-</Card>
-))}
-
-```
-  <Label>Biggest Busts</Label>
-  {BUSTS.map((b, i) => (
-    <Card key={i} borderColor={b.severity === "high" ? "#ef4444" : b.severity === "med" ? "#ff6b35" : "#7a7a8e"}>
-      <div style={{ fontWeight: 700, fontSize: 13, color: b.severity === "high" ? "#ef4444" : "#ff6b35" }}>{b.game}</div>
-      <div style={{ fontSize: 11, color: "#9a9aae", marginTop: 3 }}>{b.impact}</div>
-    </Card>
-  ))}
-</div>
-```
-
-);
-}
-
-function R32Tab() {
-const [open, setOpen] = useState(null);
-return (
-<div>
-<Label>Saturday R32 — Sweet 16 at Stake</Label>
-{R32_RESULTS.map((g, i) => (
-<Card key={i} borderColor={!g.done ? “#ffd700” : g.winner === “Texas” ? “#ef4444” : “#22c55e”}>
-<div onClick={() => setOpen(open === i ? null : i)} style={{ cursor: “pointer”, display: “flex”, alignItems: “center”, gap: 6 }}>
-<span style={{ fontSize: 10, color: “#7a7a8e”, fontWeight: 600, width: 40, flexShrink: 0 }}>{g.time}</span>
-<span style={{ flex: 1, fontWeight: 700, fontSize: 13 }}>{g.game}</span>
-<span style={{ fontSize: 11, fontWeight: 700, padding: “2px 6px”, borderRadius: 4, background: g.done ? “rgba(34,197,94,0.15)” : “rgba(255,215,0,0.15)”, color: g.done ? “#22c55e” : “#ffd700” }}>
-{g.done ? g.winner : “TBD”}
-</span>
-</div>
-{open === i && (
-<div style={{ marginTop: 8, borderTop: “1px solid #1e1e2e”, paddingTop: 8 }}>
-{BRACKETS.map(b => (
-<div key={b.name} style={{ display: “flex”, alignItems: “center”, gap: 6, padding: “3px 0”, fontSize: 11 }}>
-<div style={{ width: 6, height: 6, borderRadius: “50%”, background: b.color, flexShrink: 0 }} />
-<span style={{ width: 55, fontWeight: 600, color: b.color, fontSize: 10, textTransform: “uppercase” }}>{b.name}</span>
-<span style={{ color: g.picks[b.name].includes(“❌”) ? “#ef4444” : g.picks[b.name].includes(“✅”) ? “#22c55e” : “#9a9aae” }}>
-{g.picks[b.name]}
-</span>
-</div>
-))}
-</div>
-)}
-</Card>
-))}
-</div>
-);
-}
-
-function SundayTab() {
-return (
-<div>
-<Label>Sunday R32 — Must Watch</Label>
-{SUNDAY.map((g, i) => {
-const isChamp = g.why.includes(“CHAMPION”) || g.why.includes(“CHAMP”);
-const isFF = g.why.includes(“FF TEAM”);
-return (
-<Card key={i} borderColor={isChamp ? “#ffd700” : isFF ? “#ff6b35” : “#1e1e2e”}>
-<div style={{ display: “flex”, alignItems: “center”, gap: 6 }}>
-<span style={{ fontSize: 10, color: “#7a7a8e”, fontWeight: 600, width: 40, flexShrink: 0 }}>{g.time}</span>
-<span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{g.game}</span>
-{isChamp && <span style={{ fontSize: 9, fontWeight: 700, padding: “2px 6px”, borderRadius: 4, background: “rgba(255,215,0,0.2)”, color: “#ffd700” }}>CHAMP</span>}
-{isFF && !isChamp && <span style={{ fontSize: 9, fontWeight: 700, padding: “2px 6px”, borderRadius: 4, background: “rgba(255,107,53,0.15)”, color: “#ff6b35” }}>F4</span>}
-</div>
-<div style={{ fontSize: 11, color: isChamp ? “#ffd700” : “#9a9aae”, marginTop: 4 }}>{g.why}</div>
-</Card>
-);
-})}
-</div>
-);
-}
-
-function Card({ children, borderColor = “#1e1e2e” }) {
-return (
-<div style={{ background: “#14141f”, border: “1px solid #1e1e2e”, borderLeft: `3px solid ${borderColor}`, borderRadius: 8, padding: 10, marginBottom: 6 }}>
-{children}
-</div>
-);
-}
-
-function Label({ children }) {
-return <div style={{ fontSize: 11, fontWeight: 700, textTransform: “uppercase”, letterSpacing: 2, color: “#7a7a8e”, padding: “10px 2px 4px” }}>{children}</div>;
-}
+</body>
+</html>
